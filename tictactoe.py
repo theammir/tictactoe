@@ -4,13 +4,13 @@ root = Tk()
 root.geometry('275x275')
 root.resizable(False, False)
 
-winner = Label(root, font = 'Comic_Sans_MS 14', text = '', fg = 'blue')
+winner = Label(root, font = 'Comic_Sans_MS 14', text = 'Current: X', fg = 'blue')
+
 
 class Cell(Button):
     @property
     def clicked(self):
         return self['text'] in 'XO'
-
 
 def check_cells(cell1, cell2, cell3):
     if (cell1['text'] == cell2['text'] and cell1['text'] == cell3['text']):
@@ -34,12 +34,22 @@ def onclick(index):
     global BUTTONS, CURRENT_MOVE
     if not (BUTTONS[index].clicked):
         BUTTONS[index]['text'] = CURRENT_MOVE
+        if (all([i.clicked for i in BUTTONS])):
+            winner['text'] = f"It's a draw, man!"
+            for i in BUTTONS:
+                i['text'] = '_'
+                i['command'] = None
+            return
+            
         if (checkwin()):
+            winner['text'] = f'Winner: {CURRENT_MOVE}!'
             for i in BUTTONS:
                 i['text'] = CURRENT_MOVE
                 i['command'] = None
-                winner['text'] = f'Winner: {CURRENT_MOVE}!'
+            return
+        
         CURRENT_MOVE = 'O' if CURRENT_MOVE == 'X' else 'X'
+        winner['text'] = f'Current: {CURRENT_MOVE}'
 
 
 def move_onclick0():
@@ -69,7 +79,6 @@ def move_onclick7():
 def move_onclick8():
     onclick(8)
 
-
 CURRENT_MOVE = 'X' # O
 BUTTONS = [
     Cell(root, text = '_', width = 3, font = 'Ariel 24', command = move_onclick0),
@@ -95,4 +104,5 @@ for i in range(len(BUTTONS)):
         distancex += 75
 
 winner.pack()
+
 root.mainloop()
