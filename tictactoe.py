@@ -1,10 +1,26 @@
 from tkinter import *
+import time
+import random
+
+MULTIPLAYER = input('Do you want to play with CPU? (y/n): ').strip().lower()
+if (MULTIPLAYER == 'n'):
+    MULTIPLAYER = True
+else:
+    MULTIPLAYER = False
+
+YOU = input('What want you to play with? (x/o): ').strip()
+if not (YOU.lower() in ('x', 'o')):
+    YOU = 'X'
+else:
+    YOU = YOU.upper()
+
+CURRENT_MOVE = 'X' # O
 
 root = Tk()
 root.geometry('275x275')
 root.resizable(False, False)
 
-winner = Label(root, font = 'Comic_Sans_MS 14', text = 'Current: X', fg = 'blue')
+winner = Label(root, font = 'Arial 14', text = 'Current: X', fg = 'blue')
 
 
 class Cell(Button):
@@ -14,7 +30,7 @@ class Cell(Button):
 
 def check_cells(cell1, cell2, cell3):
     if (cell1['text'] == cell2['text'] and cell1['text'] == cell3['text']):
-        if not (cell1['text'] == '_' and cell2['text'] == '_' and cell3['text'] == '_'):
+        if (all([cell1.clicked, cell2.clicked, cell3.clicked])):
             return True
     else:
         return False
@@ -30,6 +46,17 @@ def checkwin():
             return True
     return False
 
+def make_move():
+    global BUTTONS, CURRENT_MOVE
+    if not (MULTIPLAYER):
+        for i in BUTTONS:
+            i['state'] = DISABLED
+        time.sleep(random.random())
+        onclick(BUTTONS.index(random.choice(list(filter(lambda i: i.clicked == False, BUTTONS)))))
+        for i in BUTTONS:
+            i['state'] = NORMAL
+
+
 def onclick(index):
     global BUTTONS, CURRENT_MOVE
     if not (BUTTONS[index].clicked):
@@ -40,16 +67,20 @@ def onclick(index):
                 i['text'] = '_'
                 i['command'] = None
             return
-            
+
         if (checkwin()):
             winner['text'] = f'Winner: {CURRENT_MOVE}!'
             for i in BUTTONS:
                 i['text'] = CURRENT_MOVE
                 i['command'] = None
             return
-        
+
         CURRENT_MOVE = 'O' if CURRENT_MOVE == 'X' else 'X'
         winner['text'] = f'Current: {CURRENT_MOVE}'
+        if (CURRENT_MOVE != YOU):
+            make_move()
+    else:
+        return False
 
 
 def move_onclick0():
@@ -79,7 +110,6 @@ def move_onclick7():
 def move_onclick8():
     onclick(8)
 
-CURRENT_MOVE = 'X' # O
 BUTTONS = [
     Cell(root, text = '_', width = 3, font = 'Ariel 24', command = move_onclick0),
     Cell(root, text = '_', width = 3, font = 'Ariel 24', command = move_onclick1),
@@ -104,5 +134,8 @@ for i in range(len(BUTTONS)):
         distancex += 75
 
 winner.pack()
+
+if (CURRENT_MOVE != YOU):
+    make_move()
 
 root.mainloop()
